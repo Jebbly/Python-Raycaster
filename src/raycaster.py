@@ -39,4 +39,5 @@ while running:
     player.update(pressed_keys)
 
     # Casts rays and updates display
-    player.cast()
+    # player.cast()
+    print(player.location, player.rotation)

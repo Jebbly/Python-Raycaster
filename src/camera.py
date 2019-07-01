@@ -11,7 +11,7 @@ from ray import Ray
 class Camera:
     def __init__(self, resolution, fov):
         # Define starting location and rotation
-        self.location = (0,0)
+        self.location = [0,0]
         self.rotation = 0
 
         # Define movement and rotation speed
@@ -26,22 +26,19 @@ class Camera:
         self.projection_plane_distance = (self.resolution[0]/2)/math.tan(math.radians(self.fov)/2)
 
     def update(self, pressed_keys):
-        # Convert tuple (immutable) to list (mutable)
-        new_location = list(self.location)
-
         # Manage movement by using sine and cosine to determine direction
         if pressed_keys[K_w]:
-            new_location[0] += math.cos(math.radians(self.rotation)) * self.movement_speed
-            new_location[1] += math.sin(math.radians(self.rotation)) * self.movement_speed
+            self.location[0] += math.cos(math.radians(self.rotation)) * self.movement_speed
+            self.location[1] += math.sin(math.radians(self.rotation)) * self.movement_speed
         if pressed_keys[K_a]:
-            new_location[0] -= math.sin(math.radians(self.rotation)) * self.movement_speed
-            new_location[1] += math.cos(math.radians(self.rotation)) * self.movement_speed
+            self.location[0] -= math.sin(math.radians(self.rotation)) * self.movement_speed
+            self.location[1] += math.cos(math.radians(self.rotation)) * self.movement_speed
         if pressed_keys[K_s]:
-            new_location[0] -= math.cos(math.radians(self.rotation)) * self.movement_speed
-            new_location[1] -= math.sin(math.radians(self.rotation)) * self.movement_speed
+            self.location[0] -= math.cos(math.radians(self.rotation)) * self.movement_speed
+            self.location[1] -= math.sin(math.radians(self.rotation)) * self.movement_speed
         if pressed_keys[K_d]:
-            new_location[0] += math.sin(math.radians(self.rotation)) * self.movement_speed
-            new_location[1] -= math.cos(math.radians(self.rotation)) * self.movement_speed
+            self.location[0] += math.sin(math.radians(self.rotation)) * self.movement_speed
+            self.location[1] -= math.cos(math.radians(self.rotation)) * self.movement_speed
 
         # Manage rotation
         if pressed_keys[K_RIGHT]:
@@ -50,11 +47,6 @@ class Camera:
             self.rotation += self.rotation_speed
 
         # Detect collisions
-        if map[new_location[0]][new_location[1]] = 1:
-
-
-        # Convert list back to tuple and update self.location
-        self.location = tuple(new_location)
 
     def cast(self):
         # Iterate through each column of pixels
@@ -65,7 +57,10 @@ class Camera:
 
             # Instantiate Ray and calculate distance to wall
             ray = Ray(angle, self.location)
-            ray_distance = ray.calculate()
+            ray_distance = ray.calculate_distance()
+
+            # Adjust distance to account for fishbowl effect
+            correct_distance = distance * math.cos(math.radians(angle-self.rotation))
 
         # Update display after looping through every column of pixels
         pygame.display.flip()
