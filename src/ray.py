@@ -1,6 +1,10 @@
+# Import math library
 import math
 
+# Import Map layout
 from map import Map
+
+Map = Map()
 
 class Ray:
     def __init__(self, angle, location):
@@ -9,16 +13,8 @@ class Ray:
         self.x, self.y = location[0], location[1]
 
         # Calculate direction of ray
-        # If statements will check if the result is supposed to be 0 (math library approximates results)
-        if angle % 180 == 90:
-            self.x_direction = 0
-        else:
-            self.x_direction = math.cos(self.angle)
-
-        if angle % 180 == 0:
-            self.y_direction = 0
-        else:
-            self.y_direction = math.sin(self.angle)
+        self.x_direction = math.cos(self.angle)
+        self.y_direction = math.sin(self.angle)
 
     def calculate_distance(self):
         # Find the first horizontal and vertical intersections with walls
@@ -58,16 +54,22 @@ class Ray:
             delta_x = delta_y / math.tan(self.angle)
             step_x = step_y / math.tan(self.angle)
 
-        #Find x-coordinate of first intersection between ray and grid (and other values)
+        # Find x-coordinate of first intersection between ray and grid (and other values)
         x_intersection = self.x + delta_x # Use horizontal distance to find x-coordinate of first intersection
         grid_x = math.floor(x_intersection) # Find grid location of x-coordinate
+
 
         # Declare variable to keep track of whether or not ray has hit a wall
         hit = False
         while not hit:
+            # If the intersection is outside the map boundaries, return math.inf
+            if (grid_x < 0) or (grid_x > len(Map.layout[0]) - 1):
+                return math.inf
+                break
+
             # Test for map[rounded_y][rounded_x] because of how lists of lists are referenced
             # If the grid has a wall then break out of loop
-            if Map[grid_y][grid_x]:
+            if Map.layout[grid_y][grid_x]:
                 hit = True
                 break
 
@@ -121,9 +123,14 @@ class Ray:
         # Declare variable to keep track of whether or not ray has hit a wall
         hit = False
         while not hit:
+            # If the intersection is outside the map boundaries, return math.inf
+            if (grid_y < 0) or (grid_y > len(Map.layout) - 1):
+                return math.inf
+                break
+
             # Test for map[rounded_y][rounded_x] because of how lists of lists are referenced
             # If the grid has a wall then break out of loop
-            if Map[grid_y][grid_x]:
+            if Map.layout[grid_y][grid_x]:
                 hit = True
                 break
 

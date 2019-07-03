@@ -1,5 +1,7 @@
+# Import math library
 import math
 
+# Import Map layout
 from map import Map
 
 class Ray:
@@ -9,32 +11,23 @@ class Ray:
         self.x, self.y = location[0], location[1]
 
         # Calculate direction of ray
-        # If statements will check if the result is supposed to be 0 (math library approximates results)
-        if angle % 180 == 90:
-            self.x_direction = 0
-        else:
-            self.x_direction = math.cos(self.angle)
-
-        if angle % 180 == 0:
-            self.y_direction = 0
-        else:
-            self.y_direction = math.sin(self.angle)
+        self.x_direction = math.cos(self.angle)
+        self.y_direction = math.sin(self.angle)
 
     def calculate_distance(self):
         # Find the first horizontal and vertical intersections with walls
         distance_to_horizontal_intersection = self.test_horizontal()
         distance_to_vertical_intersection = self.test_vertical()
 
-        print(distance_to_horizontal_intersection, distance_to_vertical_intersection)
-
         # Compare the distances and take the lower one (intersects first)
-        if (distance_to_horizontal_intersection <= distance_to_vertical_intersection):
+        if distance_to_horizontal_intersection <= distance_to_vertical_intersection:
             distance = distance_to_horizontal_intersection
         else:
             distance = distance_to_vertical_intersection
 
         # Return distance from ray to nearest intersection
-        print(distance)
+        print((distance_to_horizontal_intersection, distance_to_vertical_intersection), distance)
+        return distance
 
     def test_horizontal(self):
         # Find y-coordinate of first intersection between ray and grid (and other values)
@@ -60,13 +53,19 @@ class Ray:
             delta_x = delta_y / math.tan(self.angle)
             step_x = step_y / math.tan(self.angle)
 
-        #Find x-coordinate of first intersection between ray and grid (and other values)
+        # Find x-coordinate of first intersection between ray and grid (and other values)
         x_intersection = self.x + delta_x # Use horizontal distance to find x-coordinate of first intersection
         grid_x = math.floor(x_intersection) # Find grid location of x-coordinate
+
 
         # Declare variable to keep track of whether or not ray has hit a wall
         hit = False
         while not hit:
+            # If the intersection is outside the map boundaries, return math.inf
+            if (grid_x < 0) or (grid_x > len(Map[0]) - 1):
+                return math.inf
+                break
+
             # Test for map[rounded_y][rounded_x] because of how lists of lists are referenced
             # If the grid has a wall then break out of loop
             if Map[grid_y][grid_x]:
@@ -123,6 +122,11 @@ class Ray:
         # Declare variable to keep track of whether or not ray has hit a wall
         hit = False
         while not hit:
+            # If the intersection is outside the map boundaries, return math.inf
+            if (grid_y < 0) or (grid_y > len(Map) - 1):
+                return math.inf
+                break
+
             # Test for map[rounded_y][rounded_x] because of how lists of lists are referenced
             # If the grid has a wall then break out of loop
             if Map[grid_y][grid_x]:
@@ -148,10 +152,11 @@ class Ray:
         # Return the distance to the first vertical wall intersection
         return distance
 
-ray1 = Ray(60, (96/64, 224/64))
-ray2 = Ray(120, (96/64, 224/64))
-ray3 = Ray(225, (96/64, 224/64))
-ray4 = Ray(180, (96/64, 224/64))
+
+ray1 = Ray(60, (2, 2))
+ray2 = Ray(120, (2, 2))
+ray3 = Ray(91, (2, 2))
+ray4 = Ray(180, (2, 2))
 ray1.calculate_distance()
 ray2.calculate_distance()
 ray3.calculate_distance()

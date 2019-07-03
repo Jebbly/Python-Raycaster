@@ -5,50 +5,75 @@ from pygame.locals import *
 # Import math library for trigonometric functions
 import math
 
+# Import Map layout
+from map import Map
+
+Map = Map()
+
 # Import Ray class
 from ray import Ray
 
 class Camera:
     def __init__(self, resolution, fov):
         # Define starting location and rotation
-        self.location = [0,0]
-        self.rotation = 0
+        self.location = (10,10)
+        self.rotation = 315
 
         # Define movement and rotation speed
         self.movement_speed = 0.02
-        self.rotation_speed = 0.02
+        self.rotation_speed = 1
 
         # Get dimensions and FOV
         self.fov = fov
         self.resolution = resolution
 
         # Calculate distance from camera to projection plane based off of dimensions and FOV
-        self.projection_plane_distance = (self.resolution[0]/2)/math.tan(math.radians(self.fov)/2)
+        self.projection_plane_distance = (self.resolution[0]/2)/math.tan(math.radians(self.fov)/2)/32
+        self.projection_scalar = self.projection_plane_distance * Map.wall_height
 
     def update(self, pressed_keys):
+        # Set new location and rotation variable
+        new_location = list(self.location)
+        new_rotation = self.rotation
+
         # Manage movement by using sine and cosine to determine direction
         if pressed_keys[K_w]:
-            self.location[0] += math.cos(math.radians(self.rotation)) * self.movement_speed
-            self.location[1] += math.sin(math.radians(self.rotation)) * self.movement_speed
+            new_location[0] += math.cos(math.radians(self.rotation)) * self.movement_speed
+            new_location[1] -= math.sin(math.radians(self.rotation)) * self.movement_speed
+            print("Forward")
         if pressed_keys[K_a]:
-            self.location[0] -= math.sin(math.radians(self.rotation)) * self.movement_speed
-            self.location[1] += math.cos(math.radians(self.rotation)) * self.movement_speed
+            new_location[0] -= math.sin(math.radians(self.rotation)) * self.movement_speed
+            new_location[1] -= math.cos(math.radians(self.rotation)) * self.movement_speed
+            print("Left")
         if pressed_keys[K_s]:
-            self.location[0] -= math.cos(math.radians(self.rotation)) * self.movement_speed
-            self.location[1] -= math.sin(math.radians(self.rotation)) * self.movement_speed
+            new_location[0] -= math.cos(math.radians(self.rotation)) * self.movement_speed
+            new_location[1] += math.sin(math.radians(self.rotation)) * self.movement_speed
+            print("Back")
         if pressed_keys[K_d]:
-            self.location[0] += math.sin(math.radians(self.rotation)) * self.movement_speed
-            self.location[1] -= math.cos(math.radians(self.rotation)) * self.movement_speed
+            new_location[0] += math.sin(math.radians(self.rotation)) * self.movement_speed
+            new_location[1] += math.cos(math.radians(self.rotation)) * self.movement_speed
+            print("Right")
 
         # Manage rotation
         if pressed_keys[K_RIGHT]:
-            self.rotation -= self.rotation_speed
+            new_rotation -= self.rotation_speed
         if pressed_keys[K_LEFT]:
-            self.rotation += self.rotation_speed
+            new_rotation += self.rotation_speed
 
         # Detect collisions
+        '''grid_x, grid_y = math.floor(new_location[0]), math.floor(new_location[1])
 
-    def cast(self):
+        if (Map.layout[grid_y][grid_x] == 1):
+            new_location[0] = self.location[0]
+            new_location[1] = self.location[1]'''
+
+        # Return updated location and rotation
+        self.location = tuple(new_location)
+        print(self.location)
+        self.rotation = new_rotation % 360
+
+    def cast(self, screen):
+        screen.fill((0,0,0))
         # Iterate through each column of pixels
         for column in range(self.resolution[0]):
             # Find the ray angle based on rotation and the angle between subsequent rays
@@ -60,7 +85,20 @@ class Camera:
             ray_distance = ray.calculate_distance()
 
             # Adjust distance to account for fishbowl effect
-            correct_distance = distance * math.cos(math.radians(angle-self.rotation))
+            correct_distance = ray_distance * math.cos(math.radians(angle-self.rotation))
+
+            # print("Correct distance: " + str(correct_distance))
+
+            # Calculate projected wall height
+            projected_wall_height = (self.projection_scalar / correct_distance)
+            # print(projected_wall_height)
+
+            # Draw line equal to column of pixels
+            start_pos = (self.resolution[1] - projected_wall_height)/2
+            end_pos = start_pos + projected_wall_height
+            color = tuple([255/(correct_distance) for x in (100,100,100)])
+
+            pygame.draw.line(screen, (100,100,100), (self.resolution[0]-column, start_pos), (self.resolution[0]-column, end_pos))
 
         # Update display after looping through every column of pixels
         pygame.display.flip()
