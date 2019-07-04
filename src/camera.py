@@ -16,7 +16,7 @@ from ray import Ray
 class Camera:
     def __init__(self, resolution, fov):
         # Define starting location and rotation
-        self.location = (10,10)
+        self.location = (2,2)
         self.rotation = 315
 
         # Define movement and rotation speed
@@ -28,7 +28,7 @@ class Camera:
         self.resolution = resolution
 
         # Calculate distance from camera to projection plane based off of dimensions and FOV
-        self.projection_plane_distance = (self.resolution[0]/2)/math.tan(math.radians(self.fov)/2)/32
+        self.projection_plane_distance = (self.resolution[0]/2)/math.tan(math.radians(self.fov)/2)/16
         self.projection_scalar = self.projection_plane_distance * Map.wall_height
 
     def update(self, pressed_keys):
@@ -67,6 +67,19 @@ class Camera:
         self.location = tuple(new_location)
         self.rotation = new_rotation % 360
 
+    def calculate_color(self, distance):
+        # Declare multiplier color
+        multiplier = (200,200,200)
+
+        # Find object intensity relative to distance
+        intensity = 1 - (distance / (Map.longest_distance))
+
+        # Create tuple with the calculated intensity
+        color = tuple([x * intensity for x in list(multiplier)])
+
+        # Return color tuple
+        return color
+
     def cast(self, screen):
         screen.fill((0,0,0))
         # Iterate through each column of pixels
@@ -82,17 +95,15 @@ class Camera:
             # Adjust distance to account for fishbowl effect
             correct_distance = ray_distance * math.cos(math.radians(angle-self.rotation))
 
-            # print("Correct distance: " + str(correct_distance))
-
-            # Calculate projected wall height
+            # Calculate projected wall height relative to distance and projection plane distance/resolution
             projected_wall_height = (self.projection_scalar / correct_distance)
-            # print(projected_wall_height)
+
+            # Determine shading of wall based on distance
+            color = self.calculate_color(correct_distance)
 
             # Draw line equal to column of pixels
             start_pos = (self.resolution[1] - projected_wall_height)/2
             end_pos = start_pos + projected_wall_height
-            color = tuple([255/(correct_distance) for x in (100,100,100)])
-
             pygame.draw.line(screen, color, (column, start_pos), (column, end_pos))
 
         # Update display after looping through every column of pixels

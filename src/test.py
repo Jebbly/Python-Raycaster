@@ -27,11 +27,14 @@ class Ray:
         else:
             distance = distance_to_vertical_intersection
 
+        print((distance_to_horizontal_intersection, distance_to_vertical_intersection), math.degrees(self.angle))
+
         # Return distance from ray to nearest intersection
         return distance
 
     def test_horizontal(self):
         # Find y-coordinate of first intersection between ray and grid (and other values)
+        print(self.y_direction)
         if self.y_direction > 0:
             y_intersection = math.floor(self.y) # If ray is facing up, y-coordinate is equal to floor
             grid_y = y_intersection - 1 # When ray faces up, the intersection belongs to the upper grid
@@ -45,6 +48,7 @@ class Ray:
 
         # Find vertical distance from original location to intersection
         delta_y = self.y - y_intersection
+        print(delta_y)
 
         # Use delta y to find horizontal distance from original location to intersection
         if (self.x_direction == 0): # If ray is vertical then the x value won't change
@@ -57,11 +61,13 @@ class Ray:
         # Find x-coordinate of first intersection between ray and grid (and other values)
         x_intersection = self.x + delta_x # Use horizontal distance to find x-coordinate of first intersection
         grid_x = math.floor(x_intersection) # Find grid location of x-coordinate
+        print(x_intersection)
 
 
         # Declare variable to keep track of whether or not ray has hit a wall
         hit = False
         while not hit:
+            print(grid_x, grid_y)
             # If the intersection is outside the map boundaries, return math.inf
             if (grid_x < 0) or (grid_x > len(Map.layout[0]) - 1):
                 return math.inf
@@ -80,14 +86,17 @@ class Ray:
 
         # Find distance using Pythagorean Theorem
         distance_x = x_intersection - self.x
+        print(distance_x)
 
         # If ray is facing up then the y distance is 1 too great (intersection is considered part of the upper grid)
         if self.y_direction > 0:
             distance_y = grid_y + 1 - self.y
         else:
             distance_y = grid_y - self.y
+        print(distance_y)
 
         distance = math.sqrt(distance_x**2 + distance_y**2)
+        print(distance)
 
         # Return the distance to the first horizontal wall intersection
         return distance
@@ -152,3 +161,14 @@ class Ray:
 
         # Return the distance to the first vertical wall intersection
         return distance
+
+
+
+ray1 = Ray(149.5, (16.5, 16.5))
+'''ray2 = Ray(120, (2, 2))
+ray3 = Ray(91, (2, 2))
+ray4 = Ray(180, (2, 2))'''
+ray1.calculate_distance()
+'''ray2.calculate_distance()
+ray3.calculate_distance()
+ray4.calculate_distance()'''

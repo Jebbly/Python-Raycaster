@@ -9,7 +9,7 @@ from camera import Camera
 pygame.init()
 
 # Create new Camera Object and define Resolution/FOV
-player = Camera((720,540), 60)
+player = Camera((1320,720), 60)
 
 # Create display based off of defined resolution
 screen = pygame.display.set_mode(player.resolution)
@@ -40,4 +40,3 @@ while running:
 
     # Casts rays and updates display
     player.cast(screen)
-    print(player.location, player.rotation)
