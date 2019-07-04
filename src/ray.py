@@ -27,6 +27,8 @@ class Ray:
         else:
             distance = distance_to_vertical_intersection
 
+        print((distance_to_horizontal_intersection, distance_to_vertical_intersection), math.degrees(self.angle))
+
         # Return distance from ray to nearest intersection
         return distance
 
@@ -52,7 +54,7 @@ class Ray:
             step_x = 0
         else: # Otherwise use tangent to calculate distance from original location to first intersection and step x
             delta_x = delta_y / math.tan(self.angle)
-            step_x = step_y / math.tan(self.angle)
+            step_x = -step_y / math.tan(self.angle)
 
         # Find x-coordinate of first intersection between ray and grid (and other values)
         x_intersection = self.x + delta_x # Use horizontal distance to find x-coordinate of first intersection

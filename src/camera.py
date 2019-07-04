@@ -20,7 +20,7 @@ class Camera:
         self.rotation = 315
 
         # Define movement and rotation speed
-        self.movement_speed = 0.02
+        self.movement_speed = 0.1
         self.rotation_speed = 1
 
         # Get dimensions and FOV
@@ -40,19 +40,15 @@ class Camera:
         if pressed_keys[K_w]:
             new_location[0] += math.cos(math.radians(self.rotation)) * self.movement_speed
             new_location[1] -= math.sin(math.radians(self.rotation)) * self.movement_speed
-            print("Forward")
         if pressed_keys[K_a]:
             new_location[0] -= math.sin(math.radians(self.rotation)) * self.movement_speed
             new_location[1] -= math.cos(math.radians(self.rotation)) * self.movement_speed
-            print("Left")
         if pressed_keys[K_s]:
             new_location[0] -= math.cos(math.radians(self.rotation)) * self.movement_speed
             new_location[1] += math.sin(math.radians(self.rotation)) * self.movement_speed
-            print("Back")
         if pressed_keys[K_d]:
             new_location[0] += math.sin(math.radians(self.rotation)) * self.movement_speed
             new_location[1] += math.cos(math.radians(self.rotation)) * self.movement_speed
-            print("Right")
 
         # Manage rotation
         if pressed_keys[K_RIGHT]:
@@ -69,7 +65,6 @@ class Camera:
 
         # Return updated location and rotation
         self.location = tuple(new_location)
-        print(self.location)
         self.rotation = new_rotation % 360
 
     def cast(self, screen):
@@ -78,7 +73,7 @@ class Camera:
         for column in range(self.resolution[0]):
             # Find the ray angle based on rotation and the angle between subsequent rays
             # Angle between subsequent rays is equal to FOV / # of columns
-            angle = self.rotation - self.fov/2 + column * self.fov/self.resolution[0]
+            angle = self.rotation + self.fov/2 - column * self.fov/self.resolution[0]
 
             # Instantiate Ray and calculate distance to wall
             ray = Ray(angle, self.location)
@@ -98,7 +93,7 @@ class Camera:
             end_pos = start_pos + projected_wall_height
             color = tuple([255/(correct_distance) for x in (100,100,100)])
 
-            pygame.draw.line(screen, (100,100,100), (self.resolution[0]-column, start_pos), (self.resolution[0]-column, end_pos))
+            pygame.draw.line(screen, color, (column, start_pos), (column, end_pos))
 
         # Update display after looping through every column of pixels
         pygame.display.flip()
