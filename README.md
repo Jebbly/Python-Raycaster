@@ -3,9 +3,8 @@
 # Current To-Do
 - Detect player collisions with wall
 - Floor and ceiling colors
-- Manage wall colors
-
+- Update map
 
 # Late Game To-Do
-- Add textures to walls
-- Add textures to floor and ceiling
+- Add textures to wall
+- Add game functionality
