@@ -9,7 +9,11 @@ from camera import Camera
 pygame.init()
 
 # Create new Camera Object and define Resolution/FOV
-player = Camera((1320,720), 60)
+player = Camera((640, 360), 60)
+
+# Setup clock for FPS
+FPS = 24
+fpsclock = pygame.time.Clock()
 
 # Create display based off of defined resolution
 screen = pygame.display.set_mode(player.resolution)
@@ -40,3 +44,6 @@ while running:
 
     # Casts rays and updates display
     player.cast(screen)
+
+    # After loop, wait a certain amount of time so framerate is consistent
+    fpsclock.tick(FPS)
