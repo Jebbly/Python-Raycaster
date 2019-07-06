@@ -21,10 +21,12 @@ class Camera:
         # Define starting location and rotation
         self.location = (2,2)
         self.rotation = 315
+        self.vertical_rotation = 0
 
         # Define movement and rotation speed
         self.movement_speed = 0.1
         self.rotation_speed = 1
+        self.vertical_rotation_speed = 3
 
         # Get dimensions and FOV
         self.fov = fov
@@ -38,6 +40,7 @@ class Camera:
         # Set new location and rotation variable
         new_location = list(self.location)
         new_rotation = self.rotation
+        new_vertical_rotation = self.vertical_rotation
 
         # Manage movement by using sine and cosine to determine direction
         if pressed_keys[K_w]:
@@ -59,16 +62,26 @@ class Camera:
         if pressed_keys[K_LEFT]:
             new_rotation += self.rotation_speed
 
-        # Detect collisions
-        '''grid_x, grid_y = math.floor(new_location[0]), math.floor(new_location[1])
+        # Manage vertical rotation
+        if pressed_keys[K_UP]:
+            new_vertical_rotation += self.vertical_rotation_speed
+        if pressed_keys[K_DOWN]:
+            new_vertical_rotation -= self.vertical_rotation_speed
 
+        # Detect collisions
+        grid_x, grid_y = math.floor(new_location[0]), math.floor(new_location[1])
         if (Map.layout[grid_y][grid_x] == 1):
             new_location[0] = self.location[0]
-            new_location[1] = self.location[1]'''
+            new_location[1] = self.location[1]
+
+        # Set vertical rotation boundaries
+        if (new_vertical_rotation > self.resolution[1]/3) or (new_vertical_rotation < -self.resolution[1]/3):
+            new_vertical_rotation = self.vertical_rotation
 
         # Return updated location and rotation
         self.location = tuple(new_location)
         self.rotation = new_rotation % 360
+        self.vertical_rotation = new_vertical_rotation
 
     def calculate_slice(self, intersection, slice_height):
         # Determine which index of the slice should be used
@@ -121,7 +134,7 @@ class Camera:
             slice = self.calculate_slice(ray_intersection % 1, projected_wall_height)
 
             # Find where the column should be placed
-            start_pos = (self.resolution[1] - projected_wall_height)/2
+            start_pos = (self.resolution[1] - projected_wall_height)/2 + self.vertical_rotation
 
             # Blit the column at the calculated location
             screen.blit(slice, (column, start_pos))
