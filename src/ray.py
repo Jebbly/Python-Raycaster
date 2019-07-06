@@ -16,19 +16,17 @@ class Ray:
         self.x_direction = math.cos(self.angle)
         self.y_direction = math.sin(self.angle)
 
-    def calculate_distance(self):
+    def calculate_intersection(self):
         # Find the first horizontal and vertical intersections with walls
-        distance_to_horizontal_intersection = self.test_horizontal()
-        distance_to_vertical_intersection = self.test_vertical()
+        # Returns distance and intersection coordinates
+        find_horizontal_intersection = self.test_horizontal()
+        find_vertical_intersection = self.test_vertical()
 
         # Compare the distances and take the lower one (intersects first)
-        if distance_to_horizontal_intersection <= distance_to_vertical_intersection:
-            distance = distance_to_horizontal_intersection
+        if find_horizontal_intersection[0] <= find_vertical_intersection[0]:
+            return find_horizontal_intersection
         else:
-            distance = distance_to_vertical_intersection
-
-        # Return distance from ray to nearest intersection
-        return distance
+            return find_vertical_intersection
 
     def test_horizontal(self):
         # Find y-coordinate of first intersection between ray and grid (and other values)
@@ -41,7 +39,7 @@ class Ray:
             grid_y = y_intersection # WHen ray faces down, the intersection belongs to the lower grid
             step_y = 1 # Vertical step of 1 for later increments
         else:
-            return math.inf # If ray is completely horizontal, there is no intersection
+            return (math.inf, 0) # If ray is completely horizontal, there is no intersection
 
         # Find vertical distance from original location to intersection
         delta_y = self.y - y_intersection
@@ -58,13 +56,12 @@ class Ray:
         x_intersection = self.x + delta_x # Use horizontal distance to find x-coordinate of first intersection
         grid_x = math.floor(x_intersection) # Find grid location of x-coordinate
 
-
         # Declare variable to keep track of whether or not ray has hit a wall
         hit = False
         while not hit:
             # If the intersection is outside the map boundaries, return math.inf
             if (grid_x < 0) or (grid_x > len(Map.layout[0]) - 1):
-                return math.inf
+                return (math.inf, 0)
                 break
 
             # Test for map[rounded_y][rounded_x] because of how lists of lists are referenced
@@ -90,7 +87,7 @@ class Ray:
         distance = math.sqrt(distance_x**2 + distance_y**2)
 
         # Return the distance to the first horizontal wall intersection
-        return distance
+        return (distance, x_intersection)
 
     def test_vertical(self):
         # Find x-coordinate of first intersection between ray and grid (and other values)
@@ -103,7 +100,7 @@ class Ray:
             grid_x = x_intersection # WHen ray faces forward, the intersection belongs to the front grid
             step_x = 1 # Vertical step of 1 for later increments
         else:
-            return math.inf # If ray is completely vertical, there is no intersection
+            return (math.inf, 0) # If ray is completely vertical, there is no intersection
 
         # Find horizontal distance from original location to intersection
         delta_x = self.x - x_intersection
@@ -125,7 +122,7 @@ class Ray:
         while not hit:
             # If the intersection is outside the map boundaries, return math.inf
             if (grid_y < 0) or (grid_y > len(Map.layout) - 1):
-                return math.inf
+                return (math.inf, 0)
                 break
 
             # Test for map[rounded_y][rounded_x] because of how lists of lists are referenced
@@ -151,4 +148,4 @@ class Ray:
         distance = math.sqrt(distance_x**2 + distance_y**2)
 
         # Return the distance to the first vertical wall intersection
-        return distance
+        return (distance, -y_intersection)

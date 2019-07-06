@@ -5,6 +5,9 @@ from pygame.locals import *
 # Import math library for trigonometric functions
 import math
 
+# Import pillow to handle texture slices
+from PIL import Image, ImageEnhance
+
 # Import Map layout
 from map import Map
 
@@ -67,18 +70,34 @@ class Camera:
         self.location = tuple(new_location)
         self.rotation = new_rotation % 360
 
-    def calculate_color(self, distance):
-        # Declare multiplier color
-        multiplier = (200,200,200)
+    def calculate_slice(self, intersection, slice_height):
+        # Determine which index of the slice should be used
+        index = math.floor(intersection * 32)
 
-        # Find object intensity relative to distance
-        intensity = 1 - (distance / (Map.longest_distance))
+        # Take column index in texture
+        pixel_column = Map.split_wall_texture[index]
 
-        # Create tuple with the calculated intensity
-        color = tuple([x * intensity for x in list(multiplier)])
+        # Find scalar needed to fit the pixel column into slice height
+        scalar = (slice_height / pixel_column.height)
+        resized_width, resized_height = math.ceil(scalar), math.ceil(pixel_column.height * scalar)
 
-        # Return color tuple
-        return color
+        # Scale slice by scalar and take the first column
+        resized_column = pixel_column.resize((resized_width, resized_height)).crop((0, 0, 1, resized_height - 1))
+
+        # Find object intensity relative to slice height and the height of the texture
+        if (slice_height > pixel_column.height):
+            intensity = 1 - (pixel_column.height / slice_height)
+        else:
+            intensity = 0
+
+        # Calculate new column after adjusting to intensity
+        adjusted_column = ImageEnhance.Brightness(resized_column).enhance(intensity)
+
+        # Convert the column to a surface
+        surface = pygame.image.frombuffer(adjusted_column.tobytes(), adjusted_column.size, adjusted_column.mode)
+
+        # Return slice surface
+        return surface
 
     def cast(self, screen):
         screen.fill((0,0,0))
@@ -90,7 +109,7 @@ class Camera:
 
             # Instantiate Ray and calculate distance to wall
             ray = Ray(angle, self.location)
-            ray_distance = ray.calculate_distance()
+            (ray_distance, ray_intersection) = ray.calculate_intersection()
 
             # Adjust distance to account for fishbowl effect
             correct_distance = ray_distance * math.cos(math.radians(angle-self.rotation))
@@ -98,13 +117,14 @@ class Camera:
             # Calculate projected wall height relative to distance and projection plane distance/resolution
             projected_wall_height = (self.projection_scalar / correct_distance)
 
-            # Determine shading of wall based on distance
-            color = self.calculate_color(correct_distance)
+            # Determine shading/texture of wall based on distance and intersection
+            slice = self.calculate_slice(ray_intersection % 1, projected_wall_height)
 
-            # Draw line equal to column of pixels
+            # Find where the column should be placed
             start_pos = (self.resolution[1] - projected_wall_height)/2
-            end_pos = start_pos + projected_wall_height
-            pygame.draw.line(screen, color, (column, start_pos), (column, end_pos))
+
+            # Blit the column at the calculated location
+            screen.blit(slice, (column, start_pos))
 
         # Update display after looping through every column of pixels
         pygame.display.flip()

@@ -6,5 +6,4 @@
 - Update map
 
 # Late Game To-Do
-- Add textures to wall
 - Add game functionality
