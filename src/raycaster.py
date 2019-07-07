@@ -12,7 +12,7 @@ pygame.init()
 player = Camera((640, 360), 60)
 
 # Setup clock for FPS
-FPS = 24
+FPS = 20
 fpsclock = pygame.time.Clock()
 
 # Create display based off of defined resolution
