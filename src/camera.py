@@ -102,7 +102,7 @@ class Camera:
 
         # Find scalar needed to fit the pixel column into slice height
         scalar = (slice_height / pixel_column.height)
-        resized_height = round(pixel_column.height * scalar)
+        resized_height = math.floor(pixel_column.height * scalar)
 
         # Scale slice by scalar and take the first column
         resized_column = pixel_column.resize((1, resized_height))
@@ -140,8 +140,12 @@ class Camera:
             # Find corresponding color
             color = Map.split_floor_texture[texture_x][texture_y]
 
+            # Adjust color according to distance
+            intensity = self.calculate_color_intensity(actual_distance)
+            adjusted_color = tuple([color_value * intensity for color_value in color])
+
             # Fill in the pixel
-            screen.fill(color, (column, pixel_position, 1, 1))
+            screen.fill(adjusted_color, (column, pixel_position, 1, 1))
 
             # Increment to calculate next pixel underneath
             pixel_position += 1
