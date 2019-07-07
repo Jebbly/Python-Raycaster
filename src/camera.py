@@ -25,8 +25,8 @@ class Camera:
 
         # Define movement and rotation speed
         self.movement_speed = 0.1
-        self.rotation_speed = 1
-        self.vertical_rotation_speed = 3
+        self.rotation_speed = 3
+        self.vertical_rotation_speed = 10
 
         # Get dimensions and FOV
         self.fov = fov
@@ -35,6 +35,9 @@ class Camera:
         # Calculate distance from camera to projection plane based off of dimensions and FOV
         self.projection_plane_distance = (self.resolution[0]/2)/math.tan(math.radians(self.fov)/2)/16
         self.projection_scalar = self.projection_plane_distance * Map.wall_height
+
+        # Define height of camera (half of wall height)
+        self.height = Map.wall_height / 2
 
     def update(self, pressed_keys):
         # Set new location and rotation variable
@@ -83,25 +86,29 @@ class Camera:
         self.rotation = new_rotation % 360
         self.vertical_rotation = new_vertical_rotation
 
-    def calculate_slice(self, intersection, slice_height):
+    def calculate_color_intensity(self, distance):
+        # Calculate intensity relative to distance
+        intensity = (1 - (distance / Map.longest_distance))**2
+
+        # Return intensity
+        return intensity
+
+    def calculate_slice(self, distance, intersection, slice_height):
         # Determine which index of the slice should be used
-        index = math.floor(intersection * 32)
+        index = math.floor(intersection * len(Map.split_wall_texture))
 
         # Take column index in texture
         pixel_column = Map.split_wall_texture[index]
 
         # Find scalar needed to fit the pixel column into slice height
         scalar = (slice_height / pixel_column.height)
-        resized_width, resized_height = math.ceil(scalar), math.ceil(pixel_column.height * scalar)
+        resized_height = math.ceil(pixel_column.height * scalar)
 
         # Scale slice by scalar and take the first column
-        resized_column = pixel_column.resize((resized_width, resized_height)).crop((0, 0, 1, resized_height - 1))
+        resized_column = pixel_column.resize((1, resized_height))
 
-        # Find object intensity relative to slice height and the height of the texture
-        if (slice_height > pixel_column.height):
-            intensity = 1 - (pixel_column.height / slice_height)
-        else:
-            intensity = 0
+        # Find object intensity
+        intensity = self.calculate_color_intensity(distance)
 
         # Calculate new column after adjusting to intensity
         adjusted_column = ImageEnhance.Brightness(resized_column).enhance(intensity)
@@ -112,13 +119,42 @@ class Camera:
         # Return slice surface
         return surface
 
+    def draw_floor_slice(self, screen, column, pixel_position, ray_angle):
+        # Continue to calculate pixels while on screen
+        while pixel_position < self.resolution[1]:
+            # Use pixel and camera position to find the straight distance from camera to floor intersection
+            pixel_distance_to_center = pixel_position - (self.resolution[1] / 2 + self.vertical_rotation)
+            straight_distance = self.projection_plane_distance * self.height / pixel_distance_to_center
+
+            # Calculate actual distance
+            actual_distance = straight_distance / math.cos(math.radians(ray_angle - self.rotation))
+
+            # Calculate floor intersection
+            floor_intersection_x = self.location[0] + (math.cos(math.radians(ray_angle)) * actual_distance)
+            floor_intersection_y = self.location[1] + (math.sin(math.radians(ray_angle)) * actual_distance)
+
+            # Find the correct texture index
+            texture_x = math.floor((floor_intersection_x % 1) * len(Map.split_floor_texture))
+            texture_y = math.floor((floor_intersection_y % 1) * len(Map.split_floor_texture))
+
+            # Find corresponding color
+            color = Map.split_floor_texture[texture_x][texture_y]
+
+            # Fill in the pixel
+            screen.fill(color, (column, pixel_position, 1, 1))
+
+            # Increment to calculate next pixel underneath
+            pixel_position += 1
+
     def cast(self, screen):
-        screen.fill((0,0,0))
+        # Fill in background before raycasting
+        screen.fill((3, 3, 10))
+
         # Iterate through each column of pixels
         for column in range(self.resolution[0]):
             # Find the ray angle based on rotation and the angle between subsequent rays
             # Angle between subsequent rays is equal to FOV / # of columns
-            angle = self.rotation + self.fov/2 - column * self.fov/self.resolution[0]
+            angle = self.rotation + self.fov / 2 - column * self.fov / self.resolution[0]
 
             # Instantiate Ray and calculate distance to wall
             ray = Ray(angle, self.location)
@@ -131,13 +167,16 @@ class Camera:
             projected_wall_height = (self.projection_scalar / correct_distance)
 
             # Determine shading/texture of wall based on distance and intersection
-            slice = self.calculate_slice(ray_intersection % 1, projected_wall_height)
+            slice = self.calculate_slice(ray_distance, ray_intersection % 1, projected_wall_height)
 
             # Find where the column should be placed
-            start_pos = (self.resolution[1] - projected_wall_height)/2 + self.vertical_rotation
+            start_pos = (self.resolution[1] - projected_wall_height) / 2 + self.vertical_rotation
 
             # Blit the column at the calculated location
             screen.blit(slice, (column, start_pos))
+
+            # Fill in the floor pixels underneath
+            self.draw_floor_slice(screen, column, start_pos + projected_wall_height, angle)
 
         # Update display after looping through every column of pixels
         pygame.display.flip()
