@@ -102,7 +102,7 @@ class Camera:
 
         # Find scalar needed to fit the pixel column into slice height
         scalar = (slice_height / pixel_column.height)
-        resized_height = math.ceil(pixel_column.height * scalar)
+        resized_height = round(pixel_column.height * scalar)
 
         # Scale slice by scalar and take the first column
         resized_column = pixel_column.resize((1, resized_height))
@@ -131,7 +131,7 @@ class Camera:
 
             # Calculate floor intersection
             floor_intersection_x = self.location[0] + (math.cos(math.radians(ray_angle)) * actual_distance)
-            floor_intersection_y = self.location[1] + (math.sin(math.radians(ray_angle)) * actual_distance)
+            floor_intersection_y = self.location[1] - (math.sin(math.radians(ray_angle)) * actual_distance)
 
             # Find the correct texture index
             texture_x = math.floor((floor_intersection_x % 1) * len(Map.split_floor_texture))
@@ -176,7 +176,7 @@ class Camera:
             screen.blit(slice, (column, start_pos))
 
             # Fill in the floor pixels underneath
-            self.draw_floor_slice(screen, column, start_pos + projected_wall_height, angle)
+            self.draw_floor_slice(screen, column, start_pos + projected_wall_height - 1, angle)
 
         # Update display after looping through every column of pixels
         pygame.display.flip()
