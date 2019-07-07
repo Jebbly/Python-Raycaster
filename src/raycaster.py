@@ -9,13 +9,13 @@ from camera import Camera
 pygame.init()
 
 # Create new Camera Object and define Resolution/FOV
-player = Camera((640, 360), 60)
+player = Camera((320, 200), 60)
 
 # Setup clock for FPS
 FPS = 20
 fpsclock = pygame.time.Clock()
 
-# Create display based off of defined resolution
+# Create projection screen for calculations based off of defined resolution
 screen = pygame.display.set_mode(player.resolution)
 
 # Variable to keep loop running
