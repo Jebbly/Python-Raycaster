@@ -152,7 +152,7 @@ class Camera:
 
     def cast(self, screen):
         # Fill in background before raycasting
-        screen.fill((3, 3, 10))
+        screen.fill((10, 8, 20))
 
         # Iterate through each column of pixels
         for column in range(self.resolution[0]):
