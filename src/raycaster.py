@@ -5,11 +5,14 @@ from pygame.locals import *
 # Import Camera class
 from camera import Camera
 
+# Import Camera settings
+from settings import RESOLUTION, FOV
+
 # Initialize PyGame
 pygame.init()
 
 # Create new Camera Object and define Resolution/FOV
-player = Camera((320, 200), 60)
+player = Camera(RESOLUTION, FOV)
 
 # Setup clock for FPS
 FPS = 20

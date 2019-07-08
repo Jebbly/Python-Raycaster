@@ -4,9 +4,8 @@ import math
 # Import pillow to handle textures
 from PIL import Image
 
-# Define constant texture images
-BRICK = Image.open("../resources/textures/Brick/Brick-32x32.png")
-WOOD = Image.open("../resources/textures/Wood/Wood-32x32.png")
+# Import texture settings
+from settings import WALL_TEXTURE, FLOOR_TEXTURE
 
 class Map:
     def __init__(self):
@@ -35,10 +34,10 @@ class Map:
         self.longest_distance = math.sqrt(len(self.layout)**2 + len(self.layout[0])**2)
 
         # Convert selected image to columns of pixels
-        self.split_wall_texture = self.split_pixel_columns(WOOD)
+        self.split_wall_texture = self.split_pixel_columns(WALL_TEXTURE)
 
         # Convert selected image to grid (ist of lists) of pixels
-        self.split_floor_texture = self.split_pixel_grid(BRICK)
+        self.split_floor_texture = self.split_pixel_grid(FLOOR_TEXTURE)
 
     def split_pixel_columns(self, texture):
         # Iterate through each pixel column and add to list
