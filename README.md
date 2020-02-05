@@ -1,4 +1,4 @@
-# PyCaster: Python Raycaster using PyGame and Pillow
+# A Python Raycaster using PyGame and Pillow
 PyCaster is a [raycasting engine](https://en.wikipedia.org/wiki/Ray_casting) written in Python. The display is created and updated using PyGame, and textures are handled using Pillow. While the rendering is very slow at high resolutions and there are definitely ways to optimize it, PyCaster was mainly created for learning purposes.
 
 ## Screenshots
