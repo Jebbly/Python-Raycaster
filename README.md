@@ -14,9 +14,10 @@ Aside from Python, the only dependencies needed to run the raycaster are [PyGame
 To run the raycaster itself, run *raycaster.py*. To adjust the resolution, FOV, or textures, change the constants found in *settings.py*. The resolution should be set very low in order for the renderer to run smoothly.
 
 ## Controls
-- Use W, A, S, D to move camera
+- Use **W**, **A**, **S**, **D** to move camera
 - Use arrow keys to rotate camera
 
 ## Additional Resources
 [In-depth raycasting theory by F. Permadi](https://permadi.com/1996/05/ray-casting-tutorial-table-of-contents/)
+
 [Lode's C++ raycaster implementation](https://lodev.org/cgtutor/raycasting.html)
