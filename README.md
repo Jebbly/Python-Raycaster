@@ -16,3 +16,7 @@ To run the raycaster itself, run *raycaster.py*. To adjust the resolution, FOV, 
 ## Controls
 - Use W, A, S, D to move camera
 - Use arrow keys to rotate camera
+
+## Additional Resources
+[In-depth raycasting theory by F. Permadi](https://permadi.com/1996/05/ray-casting-tutorial-table-of-contents/)
+[Lode's C++ raycaster implementation](https://lodev.org/cgtutor/raycasting.html)
